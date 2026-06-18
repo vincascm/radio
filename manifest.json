@@ -1,0 +1,20 @@
+{
+  "name": "晶体管收音机",
+  "short_name": "收音机",
+  "description": "网络收音机 - 收听国内外广播电台",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#2c2c2c",
+  "theme_color": "#2c2c2c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["entertainment", "music", "news"],
+  "lang": "zh-CN"
+}
