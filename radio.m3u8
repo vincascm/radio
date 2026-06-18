@@ -55,7 +55,7 @@ https://sk.cri.cn/hyhq.m3u8
 https://sk.cri.cn/hxfh.m3u8
 
 #EXTINF:1,环球资讯广播
-http://satellitepull.cnr.cn/live/wxhqzx01/playlist.m3u8
+https://satellitepull.cnr.cn/live/wxhqzx01/playlist.m3u8
 
 #EXTINF:1,英语资讯广播
 https://sk.cri.cn/am846.m3u8
@@ -70,7 +70,7 @@ https://piccpndali.v.myalicdn.com/audio/cctv13_2.m3u8
 https://piccpndali.v.myalicdn.com/audio/cctv15_2.m3u8
 
 #EXTINF:1,BBC World Service
-http://stream.live.vc.bbcmedia.co.uk/bbc_world_service
+https://stream.live.vc.bbcmedia.co.uk/bbc_world_service
 
 #EXTINF:1,NPR 24 Hour Program Stream
-http://npr-ice.streamguys1.com/live.mp3
+https://npr-ice.streamguys1.com/live.mp3
