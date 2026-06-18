@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>晶体管收音机</title>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #2c2c2c;
+  padding: 20px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+.radio {
+  width: 930px;
+  background: linear-gradient(145deg, #e8e8e8, #c0c0c0);
+  border-radius: 18px;
+  padding: 36px;
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.7),
+    0 0 0 1px #aaa,
+    0 0 0 2px #888;
+  position: relative;
+}
+
+.radio-inner {
+  display: flex;
+  gap: 30px;
+  align-items: stretch;
+}
+
+/* ── Speaker section ── */
+.speaker-section {
+  width: 300px;
+  flex-shrink: 0;
+  background-color: #b8b8b8;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 22px rgba(0,0,0,0.15),
+    0 0 0 1px #9a9a9a;
+}
+
+.speaker-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, #2a2a2a 5px, transparent 5px);
+  background-size: 18px 18px;
+  -webkit-mask-image: radial-gradient(circle closest-side at center, black 99.9%, transparent 99.9%);
+  mask-image: radial-gradient(circle closest-side at center, black 99.9%, transparent 99.9%);
+}
+
+/* ── Right section ── */
+.right-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── Display ── */
+.display {
+  background: #f3e3a0;
+  background: linear-gradient(135deg, #f7edb5, #ecd9a0);
+  border: 4px solid #8a7a4a;
+  border-radius: 9px;
+  padding: 30px 24px;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  box-shadow:
+    inset 0 2px 8px rgba(0,0,0,0.15),
+    0 0 0 1px #b8a86a;
+  position: relative;
+}
+
+.display::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 40%, rgba(0,0,0,0.05) 100%);
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+.station-name {
+  font-size: 48px;
+  font-weight: 700;
+  color: #3a2a00;
+  font-family: Georgia, 'Times New Roman', serif;
+  letter-spacing: 1px;
+  word-break: break-all;
+}
+
+.station-freq {
+  font-size: 14px;
+  color: #7a6a3a;
+  margin-top: 3px;
+  font-family: 'Courier New', monospace;
+}
+
+.station-bitrate {
+  font-size: 13px;
+  color: #8a7a4a;
+  margin-top: 2px;
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+}
+
+.channel-counter {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 22px;
+  color: #5a4a2a;
+  font-weight: 700;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.error-state {
+  font-size: 14px;
+  color: #cc3333;
+  margin-top: 4px;
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+}
+
+/* ── Controls ── */
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  padding: 15px 0;
+}
+
+.control-btn {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 27px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #444;
+  background: linear-gradient(145deg, #f0f0f0, #d0d0d0);
+  box-shadow:
+    0 4px 8px rgba(0,0,0,0.3),
+    0 0 0 1px #bbb,
+    inset 0 1px 0 rgba(255,255,255,0.8),
+    inset 0 -2px 4px rgba(0,0,0,0.1);
+  transition: all 0.1s;
+  user-select: none;
+}
+
+.control-btn:active {
+  transform: scale(0.93);
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.3),
+    0 0 0 1px #aaa,
+    inset 0 1px 0 rgba(255,255,255,0.4),
+    inset 0 -1px 2px rgba(0,0,0,0.15);
+}
+
+.control-btn:hover {
+  background: linear-gradient(145deg, #f5f5f5, #d8d8d8);
+}
+
+.control-btn.play-btn {
+  width: 99px;
+  height: 99px;
+  font-size: 36px;
+  background: linear-gradient(145deg, #d4d4d4, #b0b0b0);
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.35),
+    0 0 0 1px #999,
+    inset 0 1px 0 rgba(255,255,255,0.6),
+    inset 0 -2px 4px rgba(0,0,0,0.15);
+}
+
+.control-btn.play-btn:hover {
+  background: linear-gradient(145deg, #ddd, #bbb);
+}
+
+.control-btn.play-btn.playing {
+  background: linear-gradient(145deg, #c8e6c8, #a0d0a0);
+  color: #2a5a2a;
+}
+
+/* ── Antenna ── */
+.antenna {
+  position: absolute;
+  left: 42px;
+  bottom: calc(100% - 10px);
+  width: 24px;
+  height: 850px;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 47px,
+      rgba(0,0,0,0.1) 47px,
+      rgba(255,255,255,0.2) 48px,
+      transparent 48px,
+      transparent 52px
+    ),
+    linear-gradient(
+      90deg,
+      #666 0%,
+      #aaa 10%,
+      #ddd 25%,
+      #f5f5f5 40%,
+      #fff 48%,
+      #e8e8e8 55%,
+      #ccc 70%,
+      #999 85%,
+      #666 100%
+    );
+  border-radius: 12px 12px 2px 2px;
+  transform-origin: center bottom;
+  transform: rotate(80deg);
+  z-index: 5;
+  box-shadow:
+    inset 0 2px 6px rgba(255,255,255,0.5),
+    inset 0 -2px 4px rgba(0,0,0,0.2),
+    0 4px 12px rgba(0,0,0,0.25);
+}
+
+.antenna::after {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26px;
+  height: 12px;
+  border-radius: 13px 13px 0 0;
+  background: linear-gradient(180deg, #e8e8e8 0%, #c0c0c0 40%, #999 100%);
+  box-shadow:
+    inset 0 1px 3px rgba(255,255,255,0.6),
+    0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* ── Responsive ── */
+@media (max-width: 960px) {
+  .radio {
+    width: 100%;
+    padding: 20px;
+  }
+  .radio-inner {
+    flex-direction: column;
+    align-items: center;
+  }
+  .speaker-section {
+    width: 100%;
+    background-size: 14px 14px;
+  }
+  .right-section {
+    width: 100%;
+  }
+  .station-name {
+    font-size: 32px;
+  }
+  .display {
+    min-height: 120px;
+    padding: 18px;
+  }
+  .control-btn {
+    width: 64px;
+    height: 64px;
+    font-size: 20px;
+  }
+  .control-btn.play-btn {
+    width: 76px;
+    height: 76px;
+    font-size: 26px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="radio">
+  <div class="antenna"></div>
+  <div class="radio-inner">
+    <div class="speaker-section">
+
+    </div>
+    <div class="right-section">
+      <div class="display">
+        <div class="station-name" id="stationName">--</div>
+        <div class="station-freq" id="stationFreq"></div>
+        <div class="station-bitrate" id="stationBitrate"></div>
+        <div class="channel-counter" id="channelCounter">0 / 0</div>
+        <div class="error-state" id="errorMsg"></div>
+      </div>
+      <div class="controls">
+        <button class="control-btn skip-btn" id="prevBtn" aria-label="上一个频道">◀◀</button>
+        <button class="control-btn play-btn" id="playBtn" aria-label="播放/暂停">▶</button>
+        <button class="control-btn skip-btn" id="nextBtn" aria-label="下一个频道">▶▶</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<audio id="audioPlayer" style="display:none"></audio>
+
+<script>
+(function() {
+  var audio = document.getElementById('audioPlayer');
+  var playBtn = document.getElementById('playBtn');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var stationNameEl = document.getElementById('stationName');
+  var stationFreqEl = document.getElementById('stationFreq');
+  var stationBitrateEl = document.getElementById('stationBitrate');
+  var channelCounter = document.getElementById('channelCounter');
+  var errorMsg = document.getElementById('errorMsg');
+
+  var stations = [];
+  var currentIndex = 0;
+  var isPlaying = false;
+  var hls = null;
+
+  function parseM3U(content) {
+    var lines = content.split('\n');
+    var result = [];
+    var current = null;
+
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].trim();
+      if (!line) continue;
+      if (line.startsWith('#EXTM3U')) continue;
+
+      if (line.startsWith('#EXTINF:')) {
+        var match = line.match(/#EXTINF:\d+,(.+)/);
+        if (match) {
+          current = { name: match[1].trim(), url: '' };
+        }
+      } else if (!line.startsWith('#') && current) {
+        current.url = line;
+        if (current.name && current.url) {
+          result.push(current);
+          current = null;
+        }
+      }
+    }
+    return result;
+  }
+
+  function getLevelBitrate(level) {
+    if (!level) return 0;
+    return level.bitrate || level.averageBitrate || (level.attrs && level.attrs.BANDWIDTH) || 0;
+  }
+
+  function formatBitrate(bps) {
+    if (!bps) return '';
+    return Math.round(bps / 1000) + ' kbps';
+  }
+
+  function updateBitrate() {
+    if (!hls || !hls.levels) return;
+    var levelIdx = hls.currentLevel;
+    var level;
+    if (levelIdx < 0 || levelIdx >= hls.levels.length) {
+      level = hls.levels[0];
+    } else {
+      level = hls.levels[levelIdx];
+    }
+    stationBitrateEl.textContent = formatBitrate(getLevelBitrate(level));
+  }
+
+  function destroyHls() {
+    if (hls) {
+      hls.destroy();
+      hls = null;
+    }
+    audio.removeAttribute('src');
+  }
+
+  function loadStation(index) {
+    destroyHls();
+    errorMsg.textContent = '';
+    stationBitrateEl.textContent = '';
+    if (index < 0 || index >= stations.length) return;
+
+    var station = stations[index];
+    currentIndex = index;
+
+    stationNameEl.textContent = station.name;
+    stationFreqEl.textContent = '';
+    channelCounter.textContent = (index + 1) + ' / ' + stations.length;
+
+    var url = station.url;
+
+    if (url.indexOf('.m3u8') !== -1) {
+      if (Hls.isSupported()) {
+        hls = new Hls({
+          fetchSetup: function(context, initParams) {
+            return new Request(context.url, Object.assign({}, initParams, { mode: 'cors' }));
+          }
+        });
+        hls.loadSource(url);
+        hls.attachMedia(audio);
+        hls.on(Hls.Events.MANIFEST_PARSED, function() {
+          updateBitrate();
+          if (isPlaying) {
+            audio.play().catch(function(e) {
+              if (e.name === 'AbortError') return;
+              errorMsg.textContent = '播放失败: ' + e.message;
+              isPlaying = false;
+              updateUI();
+            });
+          }
+        });
+        hls.on(Hls.Events.LEVEL_SWITCHED, function() {
+          updateBitrate();
+        });
+        hls.on(Hls.Events.ERROR, function(event, data) {
+          if (data.fatal) {
+            errorMsg.textContent = '流加载错误';
+            isPlaying = false;
+            updateUI();
+          }
+        });
+      } else if (audio.canPlayType('application/vnd.apple.mpegurl')) {
+        audio.src = url;
+        if (isPlaying) {
+          audio.play().catch(function(e) {
+            if (e.name === 'AbortError') return;
+            errorMsg.textContent = '播放失败';
+            isPlaying = false;
+            updateUI();
+          });
+        }
+      } else {
+        errorMsg.textContent = '浏览器不支持 HLS 流';
+        isPlaying = false;
+        updateUI();
+      }
+    } else {
+      audio.src = url;
+      if (isPlaying) {
+        audio.play().catch(function(e) {
+          if (e.name === 'AbortError') return;
+          errorMsg.textContent = '播放失败: ' + e.message;
+          isPlaying = false;
+          updateUI();
+        });
+      }
+    }
+  }
+
+  function togglePlay() {
+    if (stations.length === 0) return;
+
+    if (!isPlaying) {
+      isPlaying = true;
+      loadStation(currentIndex);
+      updateUI();
+    } else {
+      isPlaying = false;
+      audio.pause();
+      updateUI();
+    }
+  }
+
+  function prevStation() {
+    if (stations.length === 0) return;
+    var wasPlaying = isPlaying;
+    if (isPlaying) { isPlaying = false; audio.pause(); }
+    currentIndex = (currentIndex - 1 + stations.length) % stations.length;
+    isPlaying = wasPlaying;
+    loadStation(currentIndex);
+    updateUI();
+  }
+
+  function nextStation() {
+    if (stations.length === 0) return;
+    var wasPlaying = isPlaying;
+    if (isPlaying) { isPlaying = false; audio.pause(); }
+    currentIndex = (currentIndex + 1) % stations.length;
+    isPlaying = wasPlaying;
+    loadStation(currentIndex);
+    updateUI();
+  }
+
+  function updateUI() {
+    if (isPlaying) {
+      playBtn.innerHTML = '❚❚';
+      playBtn.classList.add('playing');
+    } else {
+      playBtn.innerHTML = '▶';
+      playBtn.classList.remove('playing');
+    }
+  }
+
+  playBtn.addEventListener('click', togglePlay);
+  prevBtn.addEventListener('click', prevStation);
+  nextBtn.addEventListener('click', nextStation);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+    if (e.code === 'ArrowLeft') { e.preventDefault(); prevStation(); }
+    if (e.code === 'ArrowRight') { e.preventDefault(); nextStation(); }
+  });
+
+  fetch('radio.m3u8')
+    .then(function(res) {
+      if (!res.ok) throw new Error('无法加载 radio.m3u');
+      return res.text();
+    })
+    .then(function(text) {
+      stations = parseM3U(text);
+      if (stations.length === 0) {
+        errorMsg.textContent = '没有找到频道';
+        return;
+      }
+      stationNameEl.textContent = stations[0].name;
+      stationFreqEl.textContent = '';
+      channelCounter.textContent = '1 / ' + stations.length;
+    })
+    .catch(function(err) {
+      errorMsg.textContent = '加载频道列表失败: ' + err.message;
+    });
+})();
+</script>
+</body>
+</html>
