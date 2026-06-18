@@ -118,18 +118,23 @@ body {
   font-family: 'Courier New', monospace;
 }
 
+.top-right-info {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .station-bitrate {
-  font-size: 13px;
-  color: #8a7a4a;
-  margin-top: 2px;
+  font-size: 16px;
+  color: #7a6a3a;
   font-family: 'Courier New', monospace;
   font-weight: 600;
 }
 
 .channel-counter {
-  position: absolute;
-  top: 12px;
-  right: 16px;
   font-size: 22px;
   color: #5a4a2a;
   font-weight: 700;
@@ -159,7 +164,6 @@ body {
   border-radius: 50%;
   border: none;
   cursor: pointer;
-  font-size: 27px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -183,6 +187,23 @@ body {
     inset 0 -1px 2px rgba(0,0,0,0.15);
 }
 
+.btn-icon {
+  display: block;
+  pointer-events: none;
+}
+
+.control-btn.play-btn .pause-icon {
+  display: none;
+}
+
+.control-btn.play-btn.playing .play-icon {
+  display: none;
+}
+
+.control-btn.play-btn.playing .pause-icon {
+  display: block;
+}
+
 .control-btn:hover {
   background: linear-gradient(145deg, #f5f5f5, #d8d8d8);
 }
@@ -190,7 +211,6 @@ body {
 .control-btn.play-btn {
   width: 99px;
   height: 99px;
-  font-size: 36px;
   background: linear-gradient(145deg, #d4d4d4, #b0b0b0);
   box-shadow:
     0 4px 12px rgba(0,0,0,0.35),
@@ -212,7 +232,37 @@ body {
 .antenna {
   position: absolute;
   left: 42px;
-  bottom: calc(100% - 10px);
+  bottom: calc(100% - 2px);
+  z-index: 5;
+}
+
+.antenna-base {
+  width: 26px;
+  height: 36px;
+  background: linear-gradient(90deg, #777, #bbb 20%, #eee 40%, #fff 50%, #ddd 65%, #aaa 85%, #777);
+  border-radius: 3px 3px 1px 1px;
+  box-shadow:
+    inset 0 2px 6px rgba(255,255,255,0.5),
+    inset 0 -2px 4px rgba(0,0,0,0.2),
+    0 2px 4px rgba(0,0,0,0.2);
+  position: relative;
+}
+
+.antenna-base::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: -2px;
+  right: -2px;
+  height: 6px;
+  background: linear-gradient(180deg, #8a7a4a, #6a5a2a);
+  border-radius: 0 0 3px 3px;
+}
+
+.antenna-rod {
+  position: absolute;
+  left: 1px;
+  bottom: 36px;
   width: 24px;
   height: 850px;
   background:
@@ -240,14 +290,13 @@ body {
   border-radius: 12px 12px 2px 2px;
   transform-origin: center bottom;
   transform: rotate(80deg);
-  z-index: 5;
   box-shadow:
     inset 0 2px 6px rgba(255,255,255,0.5),
     inset 0 -2px 4px rgba(0,0,0,0.2),
     0 4px 12px rgba(0,0,0,0.25);
 }
 
-.antenna::after {
+.antenna-rod::after {
   content: '';
   position: absolute;
   top: -12px;
@@ -260,6 +309,34 @@ body {
   box-shadow:
     inset 0 1px 3px rgba(255,255,255,0.6),
     0 1px 3px rgba(0,0,0,0.3);
+}
+
+.antenna-rivet {
+  position: absolute;
+  left: 50%;
+  bottom: calc(36px - 5px);
+  transform: translateX(-50%);
+  width: 16px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 35% 30%, #eee, #999 60%, #666);
+  box-shadow:
+    inset 0 1px 2px rgba(255,255,255,0.6),
+    0 1px 3px rgba(0,0,0,0.4);
+  z-index: 6;
+}
+
+.antenna-rivet::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #555;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.5);
 }
 
 /* ── Responsive ── */
@@ -279,12 +356,27 @@ body {
   .right-section {
     width: 100%;
   }
+  .antenna-rod {
+    height: 300px;
+  }
+  .antenna {
+    left: 30px;
+  }
   .station-name {
     font-size: 32px;
   }
   .display {
     min-height: 120px;
     padding: 18px;
+  }
+  .top-right-info {
+    gap: 8px;
+  }
+  .station-bitrate {
+    font-size: 13px;
+  }
+  .channel-counter {
+    font-size: 18px;
   }
   .control-btn {
     width: 64px;
@@ -297,12 +389,60 @@ body {
     font-size: 26px;
   }
 }
+
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+  .radio {
+    padding: 12px;
+  }
+  .antenna-rod {
+    height: 180px;
+    transform: rotate(65deg);
+  }
+  .antenna {
+    left: 20px;
+  }
+  .station-name {
+    font-size: 24px;
+  }
+  .display {
+    min-height: 90px;
+    padding: 12px 10px;
+  }
+  .top-right-info {
+    top: 8px;
+    right: 10px;
+    gap: 6px;
+  }
+  .station-bitrate {
+    font-size: 11px;
+  }
+  .channel-counter {
+    font-size: 14px;
+  }
+  .control-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 16px;
+  }
+  .control-btn.play-btn {
+    width: 56px;
+    height: 56px;
+    font-size: 20px;
+  }
+}
 </style>
 </head>
 <body>
 
 <div class="radio">
-  <div class="antenna"></div>
+  <div class="antenna">
+    <div class="antenna-base"></div>
+    <div class="antenna-rod"></div>
+    <div class="antenna-rivet"></div>
+  </div>
   <div class="radio-inner">
     <div class="speaker-section">
 
@@ -311,14 +451,34 @@ body {
       <div class="display">
         <div class="station-name" id="stationName">--</div>
         <div class="station-freq" id="stationFreq"></div>
-        <div class="station-bitrate" id="stationBitrate"></div>
-        <div class="channel-counter" id="channelCounter">0 / 0</div>
+        <div class="top-right-info">
+          <div class="station-bitrate" id="stationBitrate"></div>
+          <div class="channel-counter" id="channelCounter">0 / 0</div>
+        </div>
         <div class="error-state" id="errorMsg"></div>
       </div>
       <div class="controls">
-        <button class="control-btn skip-btn" id="prevBtn" aria-label="上一个频道">◀◀</button>
-        <button class="control-btn play-btn" id="playBtn" aria-label="播放/暂停">▶</button>
-        <button class="control-btn skip-btn" id="nextBtn" aria-label="下一个频道">▶▶</button>
+        <button class="control-btn skip-btn" id="prevBtn" aria-label="上一个频道">
+          <svg class="btn-icon" viewBox="0 0 24 24" width="31" height="31">
+            <polyline points="14,6 6,12 14,18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="20,6 12,12 20,18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="control-btn play-btn" id="playBtn" aria-label="播放/暂停">
+          <svg class="btn-icon play-icon" viewBox="0 0 24 24" width="35" height="35">
+            <polygon points="8,5 20,12 8,19" fill="currentColor"/>
+          </svg>
+          <svg class="btn-icon pause-icon" viewBox="0 0 24 24" width="35" height="35">
+            <rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor"/>
+            <rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor"/>
+          </svg>
+        </button>
+        <button class="control-btn skip-btn" id="nextBtn" aria-label="下一个频道">
+          <svg class="btn-icon" viewBox="0 0 24 24" width="31" height="31">
+            <polyline points="10,6 18,12 10,18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="4,6 12,12 4,18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
       </div>
     </div>
   </div>
@@ -399,6 +559,39 @@ body {
     audio.removeAttribute('src');
   }
 
+  function updateMediaSession() {
+    if (!('mediaSession' in navigator)) return;
+    var station = stations[currentIndex];
+    if (!station) return;
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: station.name,
+      artist: '晶体管收音机',
+      artwork: [
+        { src: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="16" fill="#c0a060"/><rect x="16" y="48" width="160" height="120" rx="8" fill="#f3e3a0" stroke="#8a7a4a" stroke-width="3"/><rect x="16" y="24" width="12" height="36" rx="4" fill="#999"/><circle cx="96" cy="108" r="28" fill="#3a2a00"/><circle cx="96" cy="108" r="16" fill="#f3e3a0"/><rect x="32" y="144" width="64" height="8" rx="2" fill="#8a7a4a"/></svg>'), sizes: '192x192', type: 'image/svg+xml' }
+      ]
+    });
+    navigator.mediaSession.setActionHandler('play', function() {
+      if (!isPlaying) {
+        isPlaying = true;
+        loadStation(currentIndex);
+        updateUI();
+      }
+    });
+    navigator.mediaSession.setActionHandler('pause', function() {
+      if (isPlaying) {
+        isPlaying = false;
+        audio.pause();
+        updateUI();
+      }
+    });
+    navigator.mediaSession.setActionHandler('previoustrack', function() {
+      prevStation();
+    });
+    navigator.mediaSession.setActionHandler('nexttrack', function() {
+      nextStation();
+    });
+  }
+
   function loadStation(index) {
     destroyHls();
     errorMsg.textContent = '';
@@ -411,6 +604,7 @@ body {
     stationNameEl.textContent = station.name;
     stationFreqEl.textContent = '';
     channelCounter.textContent = (index + 1) + ' / ' + stations.length;
+    updateMediaSession();
 
     var url = station.url;
 
@@ -508,11 +702,12 @@ body {
 
   function updateUI() {
     if (isPlaying) {
-      playBtn.innerHTML = '❚❚';
       playBtn.classList.add('playing');
     } else {
-      playBtn.innerHTML = '▶';
       playBtn.classList.remove('playing');
+    }
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
     }
   }
 
@@ -541,6 +736,7 @@ body {
       stationNameEl.textContent = stations[0].name;
       stationFreqEl.textContent = '';
       channelCounter.textContent = '1 / ' + stations.length;
+      updateMediaSession();
     })
     .catch(function(err) {
       errorMsg.textContent = '加载频道列表失败: ' + err.message;
