@@ -829,7 +829,7 @@ function radio() {
           return;
         }
         this.sources.yunting.stations = json.data.map(function(item) {
-          return { name: item.title, url: item.mp3PlayUrlHigh, image: item.image, subtitle: item.subtitle };
+          return { name: item.title, url: item.mp3PlayUrlHigh.replace('http://', 'https://'), image: item.image, subtitle: item.subtitle };
         });
         if (this.currentSource === 'yunting') this.showStations();
       })
