@@ -4,14 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#2c2c2c">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="收音机">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon.svg">
 <title>晶体管收音机</title>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.20/hls.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.14.9/cdn.min.js"></script>
 <style>
 * {
   margin: 0;
@@ -134,18 +136,45 @@ body {
   gap: 12px;
 }
 
-.station-bitrate {
-  font-size: 16px;
-  color: #7a6a3a;
-  font-family: 'Courier New', monospace;
-  font-weight: 600;
-}
-
 .channel-counter {
   font-size: 22px;
   color: #5a4a2a;
   font-weight: 700;
   font-family: Georgia, 'Times New Roman', serif;
+}
+
+.station-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.station-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  display: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+
+.station-image[src] {
+  display: block;
+}
+
+.station-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+.station-subtitle {
+  font-size: 13px;
+  color: #6a5a2a;
+  margin-top: 2px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
 }
 
 .error-state {
@@ -156,8 +185,76 @@ body {
   font-weight: 600;
 }
 
+/* ── Source label (top-left of display) ── */
+.source-label {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  font-size: 11px;
+  color: #8a7a4a;
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* ── Source zone (left of prev button) ── */
+.source-zone {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding-top: 4px;
+}
+
+.zone-btn {
+  width: 56px;
+  height: 28px;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #444;
+  font-size: 11px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  background: linear-gradient(145deg, #f0f0f0, #d0d0d0);
+  box-shadow:
+    0 3px 6px rgba(0,0,0,0.25),
+    0 0 0 1px #bbb,
+    inset 0 1px 0 rgba(255,255,255,0.8),
+    inset 0 -2px 4px rgba(0,0,0,0.1);
+  transition: all 0.1s;
+  user-select: none;
+}
+
+.zone-btn:hover {
+  background: linear-gradient(145deg, #f5f5f5, #d8d8d8);
+}
+
+.zone-btn:active {
+  transform: scale(0.93);
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.25),
+    0 0 0 1px #aaa,
+    inset 0 1px 0 rgba(255,255,255,0.4),
+    inset 0 -1px 2px rgba(0,0,0,0.15);
+}
+
+.zone-placeholder {
+  width: 56px;
+  height: 28px;
+}
+
 /* ── Controls ── */
 .controls {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -197,18 +294,6 @@ body {
 .btn-icon {
   display: block;
   pointer-events: none;
-}
-
-.control-btn.play-btn .pause-icon {
-  display: none;
-}
-
-.control-btn.play-btn.playing .play-icon {
-  display: none;
-}
-
-.control-btn.play-btn.playing .pause-icon {
-  display: block;
 }
 
 .control-btn:hover {
@@ -376,11 +461,12 @@ body {
     min-height: 120px;
     padding: 18px;
   }
+  .station-image {
+    width: 48px;
+    height: 48px;
+  }
   .top-right-info {
     gap: 8px;
-  }
-  .station-bitrate {
-    font-size: 13px;
   }
   .channel-counter {
     font-size: 18px;
@@ -394,6 +480,14 @@ body {
     width: 76px;
     height: 76px;
     font-size: 26px;
+  }
+  .source-zone {
+    width: 52px;
+  }
+  .zone-btn, .zone-placeholder {
+    width: 46px;
+    height: 26px;
+    font-size: 10px;
   }
 }
 
@@ -411,13 +505,17 @@ body {
     min-height: 90px;
     padding: 12px 10px;
   }
+  .station-image {
+    width: 36px;
+    height: 36px;
+  }
+  .station-subtitle {
+    font-size: 11px;
+  }
   .top-right-info {
     top: 8px;
     right: 10px;
     gap: 6px;
-  }
-  .station-bitrate {
-    font-size: 11px;
   }
   .channel-counter {
     font-size: 14px;
@@ -432,12 +530,20 @@ body {
     height: 56px;
     font-size: 20px;
   }
+  .source-zone {
+    width: 44px;
+  }
+  .zone-btn, .zone-placeholder {
+    width: 38px;
+    height: 24px;
+    font-size: 9px;
+  }
 }
 </style>
 </head>
 <body>
 
-<div class="radio">
+<div class="radio" x-data="radio()">
   <div class="antenna">
     <div class="antenna-base"></div>
     <div class="antenna-rod"></div>
@@ -449,299 +555,344 @@ body {
     </div>
     <div class="right-section">
       <div class="display">
-        <div class="station-name" id="stationName">--</div>
-        <div class="station-freq" id="stationFreq"></div>
-        <div class="top-right-info">
-          <div class="station-bitrate" id="stationBitrate"></div>
-          <div class="channel-counter" id="channelCounter">0 / 0</div>
+        <div class="source-label" x-text="sourceLabel">云听</div>
+        <div class="station-info">
+            <img class="station-image" x-bind:src="currentStation?.image || '/station-fallback.svg'" alt="">
+          <div class="station-meta">
+            <div class="station-name" x-text="currentStation?.name || '--'">--</div>
+            <div class="station-freq" x-text="currentStation?.freq || ''"></div>
+            <div class="station-subtitle" x-text="currentStation?.subtitle || ''"></div>
+          </div>
         </div>
-        <div class="error-state" id="errorMsg"></div>
+        <div class="top-right-info">
+          <div class="channel-counter" x-text="channelCounterText">0 / 0</div>
+        </div>
+        <div class="error-state" x-text="errorMsg" x-show="errorMsg"></div>
       </div>
       <div class="controls">
-        <button class="control-btn skip-btn" id="prevBtn" aria-label="上一个频道">
+        <div class="source-zone">
+          <button class="zone-btn" @click="switchSource">source</button>
+          <div class="zone-placeholder"></div>
+          <div class="zone-placeholder"></div>
+        </div>
+        <button class="control-btn skip-btn" @click="prevStation" aria-label="上一个频道">
           <svg class="btn-icon" viewBox="0 0 24 24" width="31" height="31">
-            <polyline points="14,6 6,12 14,18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <polyline points="20,6 12,12 20,18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="12,7 7,12 12,17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="17,7 12,12 17,17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
-        <button class="control-btn play-btn" id="playBtn" aria-label="播放/暂停">
-          <svg class="btn-icon play-icon" viewBox="0 0 24 24" width="35" height="35">
+        <button class="control-btn play-btn" @click="togglePlay" :class="{ playing: isPlaying }" aria-label="播放/暂停">
+          <svg class="btn-icon play-icon" x-show="!isPlaying" viewBox="0 0 24 24" width="35" height="35">
             <polygon points="8,5 20,12 8,19" fill="currentColor"/>
           </svg>
-          <svg class="btn-icon pause-icon" viewBox="0 0 24 24" width="35" height="35">
+          <svg class="btn-icon pause-icon" x-show="isPlaying" viewBox="0 0 24 24" width="35" height="35">
             <rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor"/>
             <rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor"/>
           </svg>
         </button>
-        <button class="control-btn skip-btn" id="nextBtn" aria-label="下一个频道">
+        <button class="control-btn skip-btn" @click="nextStation" aria-label="下一个频道">
           <svg class="btn-icon" viewBox="0 0 24 24" width="31" height="31">
-            <polyline points="10,6 18,12 10,18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <polyline points="4,6 12,12 4,18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="12,7 17,12 12,17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="7,7 12,12 7,17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
       </div>
     </div>
   </div>
+  <audio x-ref="audio" style="display:none"></audio>
 </div>
 
-<audio id="audioPlayer" style="display:none"></audio>
-
 <script>
-(function() {
-  var audio = document.getElementById('audioPlayer');
-  var playBtn = document.getElementById('playBtn');
-  var prevBtn = document.getElementById('prevBtn');
-  var nextBtn = document.getElementById('nextBtn');
-  var stationNameEl = document.getElementById('stationName');
-  var stationFreqEl = document.getElementById('stationFreq');
-  var stationBitrateEl = document.getElementById('stationBitrate');
-  var channelCounter = document.getElementById('channelCounter');
-  var errorMsg = document.getElementById('errorMsg');
+function radio() {
+  let hls = null;
+  const YUNTING_KEY = 'f0fc4c668392f9f9a447e48584c214ee';
 
-  var stations = [];
-  var currentIndex = 0;
-  var isPlaying = false;
-  var hls = null;
+  return {
+    currentSource: 'yunting',
+    currentIndex: 0,
+    isPlaying: false,
+    sources: {
+      radio: { stations: [], label: '电台文件' },
+      yunting: { stations: [], label: '云听' }
+    },
+    sourceList: ['yunting', 'radio'],
+    errorMsg: '',
 
-  function parseM3U(content) {
-    var lines = content.split('\n');
-    var result = [];
-    var current = null;
+    get stations() {
+      return this.sources[this.currentSource].stations;
+    },
 
-    for (var i = 0; i < lines.length; i++) {
-      var line = lines[i].trim();
-      if (!line) continue;
-      if (line.startsWith('#EXTM3U')) continue;
+    get currentStation() {
+      return this.stations[this.currentIndex];
+    },
 
-      if (line.startsWith('#EXTINF:')) {
-        var match = line.match(/#EXTINF:\d+,(.+)/);
-        if (match) {
-          current = { name: match[1].trim(), url: '' };
-        }
-      } else if (!line.startsWith('#') && current) {
-        current.url = line;
-        if (current.name && current.url) {
-          result.push(current);
-          current = null;
-        }
+    get channelCounterText() {
+      if (this.stations.length === 0) return '0 / 0';
+      return (this.currentIndex + 1) + ' / ' + this.stations.length;
+    },
+
+    get sourceLabel() {
+      return this.sources[this.currentSource].label;
+    },
+
+    init() {
+      this.fetchRadioStations();
+      this.fetchYuntingStations();
+      this.setupMediaSession();
+
+      window.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.code === 'Space') { e.preventDefault(); this.togglePlay(); }
+        if (e.code === 'ArrowLeft') { e.preventDefault(); this.prevStation(); }
+        if (e.code === 'ArrowRight') { e.preventDefault(); this.nextStation(); }
+      });
+    },
+
+    destroyHls() {
+      if (hls) {
+        hls.destroy();
+        hls = null;
       }
-    }
-    return result;
-  }
+      this.$refs.audio.removeAttribute('src');
+    },
 
-  function getLevelBitrate(level) {
-    if (!level) return 0;
-    return level.bitrate || level.averageBitrate || (level.attrs && level.attrs.BANDWIDTH) || 0;
-  }
-
-  function formatBitrate(bps) {
-    if (!bps) return '';
-    return Math.round(bps / 1000) + ' kbps';
-  }
-
-  function updateBitrate() {
-    if (!hls || !hls.levels) return;
-    var levelIdx = hls.currentLevel;
-    var level;
-    if (levelIdx < 0 || levelIdx >= hls.levels.length) {
-      level = hls.levels[0];
-    } else {
-      level = hls.levels[levelIdx];
-    }
-    stationBitrateEl.textContent = formatBitrate(getLevelBitrate(level));
-  }
-
-  function destroyHls() {
-    if (hls) {
-      hls.destroy();
-      hls = null;
-    }
-    audio.removeAttribute('src');
-  }
-
-  function updateMediaSession() {
-    if (!('mediaSession' in navigator)) return;
-    var station = stations[currentIndex];
-    if (!station) return;
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: station.name,
-      artist: '晶体管收音机',
-      artwork: [
-        { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml' }
-      ]
-    });
-    navigator.mediaSession.setActionHandler('play', function() {
-      if (!isPlaying) {
-        isPlaying = true;
-        loadStation(currentIndex);
-        updateUI();
-      }
-    });
-    navigator.mediaSession.setActionHandler('pause', function() {
-      if (isPlaying) {
-        isPlaying = false;
-        audio.pause();
-        updateUI();
-      }
-    });
-    navigator.mediaSession.setActionHandler('previoustrack', function() {
-      prevStation();
-    });
-    navigator.mediaSession.setActionHandler('nexttrack', function() {
-      nextStation();
-    });
-  }
-
-  function loadStation(index) {
-    destroyHls();
-    errorMsg.textContent = '';
-    stationBitrateEl.textContent = '';
-    if (index < 0 || index >= stations.length) return;
-
-    var station = stations[index];
-    currentIndex = index;
-
-    stationNameEl.textContent = station.name;
-    stationFreqEl.textContent = '';
-    channelCounter.textContent = (index + 1) + ' / ' + stations.length;
-    updateMediaSession();
-
-    var url = station.url;
-
-    if (url.indexOf('.m3u8') !== -1) {
-      if (Hls.isSupported()) {
-        hls = new Hls({
-          fetchSetup: function(context, initParams) {
-            return new Request(context.url, Object.assign({}, initParams, { mode: 'cors' }));
-          }
-        });
-        hls.loadSource(url);
-        hls.attachMedia(audio);
-        hls.on(Hls.Events.MANIFEST_PARSED, function() {
-          updateBitrate();
-          if (isPlaying) {
-            audio.play().catch(function(e) {
-              if (e.name === 'AbortError') return;
-              errorMsg.textContent = '播放失败: ' + e.message;
-              isPlaying = false;
-              updateUI();
-            });
-          }
-        });
-        hls.on(Hls.Events.LEVEL_SWITCHED, function() {
-          updateBitrate();
-        });
-        hls.on(Hls.Events.ERROR, function(event, data) {
-          if (data.fatal) {
-            errorMsg.textContent = '流加载错误';
-            isPlaying = false;
-            updateUI();
-          }
-        });
-      } else if (audio.canPlayType('application/vnd.apple.mpegurl')) {
-        audio.src = url;
-        if (isPlaying) {
-          audio.play().catch(function(e) {
-            if (e.name === 'AbortError') return;
-            errorMsg.textContent = '播放失败';
-            isPlaying = false;
-            updateUI();
-          });
-        }
-      } else {
-        errorMsg.textContent = '浏览器不支持 HLS 流';
-        isPlaying = false;
-        updateUI();
-      }
-    } else {
-      audio.src = url;
-      if (isPlaying) {
-        audio.play().catch(function(e) {
-          if (e.name === 'AbortError') return;
-          errorMsg.textContent = '播放失败: ' + e.message;
-          isPlaying = false;
-          updateUI();
-        });
-      }
-    }
-  }
-
-  function togglePlay() {
-    if (stations.length === 0) return;
-
-    if (!isPlaying) {
-      isPlaying = true;
-      loadStation(currentIndex);
-      updateUI();
-    } else {
-      isPlaying = false;
-      audio.pause();
-      updateUI();
-    }
-  }
-
-  function prevStation() {
-    if (stations.length === 0) return;
-    var wasPlaying = isPlaying;
-    if (isPlaying) { isPlaying = false; audio.pause(); }
-    currentIndex = (currentIndex - 1 + stations.length) % stations.length;
-    isPlaying = wasPlaying;
-    loadStation(currentIndex);
-    updateUI();
-  }
-
-  function nextStation() {
-    if (stations.length === 0) return;
-    var wasPlaying = isPlaying;
-    if (isPlaying) { isPlaying = false; audio.pause(); }
-    currentIndex = (currentIndex + 1) % stations.length;
-    isPlaying = wasPlaying;
-    loadStation(currentIndex);
-    updateUI();
-  }
-
-  function updateUI() {
-    if (isPlaying) {
-      playBtn.classList.add('playing');
-    } else {
-      playBtn.classList.remove('playing');
-    }
-    if ('mediaSession' in navigator) {
-      navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
-    }
-  }
-
-  playBtn.addEventListener('click', togglePlay);
-  prevBtn.addEventListener('click', prevStation);
-  nextBtn.addEventListener('click', nextStation);
-
-  document.addEventListener('keydown', function(e) {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-    if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
-    if (e.code === 'ArrowLeft') { e.preventDefault(); prevStation(); }
-    if (e.code === 'ArrowRight') { e.preventDefault(); nextStation(); }
-  });
-
-  fetch('radio.m3u8')
-    .then(function(res) {
-      if (!res.ok) throw new Error('无法加载 radio.m3u');
-      return res.text();
-    })
-    .then(function(text) {
-      stations = parseM3U(text);
-      if (stations.length === 0) {
-        errorMsg.textContent = '没有找到频道';
+    showStations() {
+      if (this.stations.length === 0) {
+        this.errorMsg = '加载中...';
         return;
       }
-      stationNameEl.textContent = stations[0].name;
-      stationFreqEl.textContent = '';
-      channelCounter.textContent = '1 / ' + stations.length;
-      updateMediaSession();
-    })
-    .catch(function(err) {
-      errorMsg.textContent = '加载频道列表失败: ' + err.message;
-    });
-})();
+      if (this.currentIndex >= this.stations.length) this.currentIndex = 0;
+      this.loadStation(this.currentIndex);
+    },
+
+    loadStation(index) {
+      this.destroyHls();
+      this.errorMsg = '';
+      if (index < 0 || index >= this.stations.length) return;
+
+      this.currentIndex = index;
+      var station = this.stations[index];
+      var audio = this.$refs.audio;
+      this.updateMediaSession();
+
+      var url = station.url;
+      if (url.indexOf('.m3u8') !== -1) {
+        if (Hls.isSupported()) {
+          hls = new Hls({
+            fetchSetup: function(context, initParams) {
+              return new Request(context.url, Object.assign({}, initParams, { mode: 'cors' }));
+            }
+          });
+          hls.loadSource(url);
+          hls.attachMedia(audio);
+          hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            if (this.isPlaying) {
+              audio.play().catch((e) => {
+                if (e.name === 'AbortError') return;
+                this.errorMsg = '播放失败: ' + e.message;
+                this.isPlaying = false;
+              });
+            }
+          });
+          hls.on(Hls.Events.ERROR, (event, data) => {
+            if (data.fatal) {
+              this.errorMsg = '流加载错误';
+              this.isPlaying = false;
+            }
+          });
+        } else if (audio.canPlayType('application/vnd.apple.mpegurl')) {
+          audio.src = url;
+          if (this.isPlaying) {
+            audio.play().catch((e) => {
+              if (e.name === 'AbortError') return;
+              this.errorMsg = '播放失败';
+              this.isPlaying = false;
+            });
+          }
+        } else {
+          this.errorMsg = '浏览器不支持 HLS 流';
+          this.isPlaying = false;
+        }
+      } else {
+        audio.src = url;
+        if (this.isPlaying) {
+          audio.play().catch((e) => {
+            if (e.name === 'AbortError') return;
+            this.errorMsg = '播放失败: ' + e.message;
+            this.isPlaying = false;
+          });
+        }
+      }
+    },
+
+    togglePlay() {
+      if (this.stations.length === 0) return;
+      var audio = this.$refs.audio;
+      if (!this.isPlaying) {
+        this.isPlaying = true;
+        this.loadStation(this.currentIndex);
+      } else {
+        this.isPlaying = false;
+        audio.pause();
+      }
+      this.updatePlaybackState();
+    },
+
+    prevStation() {
+      if (this.stations.length === 0) return;
+      var audio = this.$refs.audio;
+      var wasPlaying = this.isPlaying;
+      if (this.isPlaying) { this.isPlaying = false; audio.pause(); }
+      this.currentIndex = (this.currentIndex - 1 + this.stations.length) % this.stations.length;
+      this.isPlaying = wasPlaying;
+      this.loadStation(this.currentIndex);
+    },
+
+    nextStation() {
+      if (this.stations.length === 0) return;
+      var audio = this.$refs.audio;
+      var wasPlaying = this.isPlaying;
+      if (this.isPlaying) { this.isPlaying = false; audio.pause(); }
+      this.currentIndex = (this.currentIndex + 1) % this.stations.length;
+      this.isPlaying = wasPlaying;
+      this.loadStation(this.currentIndex);
+    },
+
+    updatePlaybackState() {
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = this.isPlaying ? 'playing' : 'paused';
+      }
+    },
+
+    updateMediaSession() {
+      if (!('mediaSession' in navigator)) return;
+      var station = this.currentStation;
+      if (!station) return;
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: station.name,
+        artist: '晶体管收音机',
+        artwork: [
+          { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml' }
+        ]
+      });
+    },
+
+    setupMediaSession() {
+      if (!('mediaSession' in navigator)) return;
+      navigator.mediaSession.setActionHandler('play', () => {
+        if (!this.isPlaying) {
+          this.isPlaying = true;
+          this.loadStation(this.currentIndex);
+        }
+      });
+      navigator.mediaSession.setActionHandler('pause', () => {
+        if (this.isPlaying) {
+          this.isPlaying = false;
+          this.$refs.audio.pause();
+        }
+      });
+      navigator.mediaSession.setActionHandler('previoustrack', () => {
+        this.prevStation();
+      });
+      navigator.mediaSession.setActionHandler('nexttrack', () => {
+        this.nextStation();
+      });
+    },
+
+    signParams(params) {
+      var keys = Object.keys(params).sort();
+      var str = keys.map(function(k) { return k + '=' + params[k]; }).join('&');
+      var ts = Date.now();
+      str += '&timestamp=' + ts + '&key=' + YUNTING_KEY;
+      return { timestamp: ts, sign: CryptoJS.MD5(str).toString().toUpperCase() };
+    },
+
+    fetchYuntingStations() {
+      var params = { categoryId: 0, provinceCode: 0 };
+      var sig = this.signParams(params);
+      var qs = Object.keys(params).map(function(k) { return k + '=' + params[k]; }).join('&');
+      var url = 'https://ytmsout.radio.cn/web/appBroadcast/list?' + qs;
+
+      fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          'equipmentId': '0000',
+          'platformCode': 'WEB',
+          'timestamp': sig.timestamp,
+          'sign': sig.sign
+        }
+      })
+      .then(function(res) { return res.json(); })
+      .then((json) => {
+        if (json.code !== 0) {
+          if (this.currentSource === 'yunting') this.errorMsg = '云听加载失败: ' + (json.message || '');
+          return;
+        }
+        this.sources.yunting.stations = json.data.map(function(item) {
+          return { name: item.title, url: item.mp3PlayUrlHigh, image: item.image, subtitle: item.subtitle };
+        });
+        if (this.currentSource === 'yunting') this.showStations();
+      })
+      .catch((err) => {
+        if (this.currentSource === 'yunting') this.errorMsg = '云听加载失败: ' + err.message;
+      });
+    },
+
+    fetchRadioStations() {
+      fetch('radio.m3u8')
+        .then(function(res) {
+          if (!res.ok) throw new Error('无法加载 radio.m3u8');
+          return res.text();
+        })
+        .then((text) => {
+          this.sources.radio.stations = this.parseM3U(text);
+          if (this.currentSource === 'radio') this.showStations();
+        })
+        .catch((err) => {
+          if (this.currentSource === 'radio') this.errorMsg = '加载频道列表失败: ' + err.message;
+        });
+    },
+
+    parseM3U(content) {
+      var lines = content.split('\n');
+      var result = [];
+      var current = null;
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i].trim();
+        if (!line) continue;
+        if (line.startsWith('#EXTM3U')) continue;
+        if (line.startsWith('#EXTINF:')) {
+          var match = line.match(/#EXTINF:\d+,(.+)/);
+          if (match) {
+            current = { name: match[1].trim(), url: '' };
+          }
+        } else if (!line.startsWith('#') && current) {
+          current.url = line;
+          if (current.name && current.url) {
+            result.push(current);
+            current = null;
+          }
+        }
+      }
+      return result;
+    },
+
+    switchSource() {
+      var nextIdx = (this.sourceList.indexOf(this.currentSource) + 1) % this.sourceList.length;
+      var next = this.sourceList[nextIdx];
+      var audio = this.$refs.audio;
+      if (this.isPlaying) {
+        this.isPlaying = false;
+        audio.pause();
+      }
+      this.destroyHls();
+      this.errorMsg = '';
+      this.currentSource = next;
+      this.currentIndex = 0;
+      this.showStations();
+    }
+  };
+}
 </script>
 
 <script>
