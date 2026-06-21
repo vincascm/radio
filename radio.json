@@ -1,0 +1,122 @@
+[
+  {
+    "logo": "https://ytmedia.radio.cn/CCYT%2F202302%2F09%2F16%2F78TPTKDEspxwVe2m9DzSNW2xBHcNHIIUkkF2023020916167.png",
+    "name": "环球资讯广播",
+    "url": "https://satellitepull.cnr.cn/live/wxhqzx01/playlist.m3u8"
+  },
+  {
+    "logo": "https://ytmedia.radio.cn/CCYT%2F202302%2F10%2F14%2FpDZEJjU92023021014157.png",
+    "name": "英语资讯广播",
+    "url": "https://sk.cri.cn/am846.m3u8"
+  },
+  {
+    "logo": "https://ytmedia.radio.cn/CCYT%2F202302%2F10%2F14%2FpDZEJjU92023021014157.png",
+    "name": "CGTN English",
+    "url": "https://english-livetx.cgtn.com/hls/yypdyyctzb_sd.m3u8"
+  },
+  {
+    "logo": "https://raw.githubusercontent.com/wanglindl/TVlogo/main/img/CCTV13.png",
+    "name": "CCTV-13新闻伴音",
+    "url": "https://piccpndali.v.myalicdn.com/audio/cctv13_2.m3u8"
+  },
+  {
+    "logo": "https://raw.githubusercontent.com/wanglindl/TVlogo/main/img/CCTV15.png",
+    "name": "CCTV-15音乐伴音",
+    "url": "https://piccpndali.v.myalicdn.com/audio/cctv15_2.m3u8"
+  },
+  {
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/2/2c/BBC_World_Service_2022_%28Boxed%29.svg",
+    "name": "BBC World Service",
+    "url": "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service"
+  },
+  {
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/d/d7/National_Public_Radio_logo.svg",
+    "name": "NPR 24 Hour Program Stream",
+    "url": "https://npr-ice.streamguys1.com/live.mp3"
+  },
+  {
+    "logo": "http://www.cnr.cn/2010zhuanti/bsfb/logo/201004/W020100427757825634138.jpg",
+    "name": "中国之声",
+    "url": "https://satellitepull.cnr.cn/live/wxzgzs/playlist.m3u8"
+  },
+  {
+    "logo": "http://www.cnr.cn/2010zhuanti/bsfb/logo/201004/W020100427759395293222.jpg",
+    "name": "经济之声",
+    "url": "https://satellitepull.cnr.cn/live/wxjjzs/playlist.m3u8"
+  },
+  {
+    "logo": "http://www.cnr.cn/2010zhuanti/bsfb/logo/201004/W020100427762842859134.jpg",
+    "name": "音乐之声",
+    "url": "https://satellitepull.cnr.cn/live/wxyyzs/playlist.m3u8"
+  },
+  {
+    "logo": "http://www.cnr.cn/2010zhuanti/bsfb/logo/201004/W020100427768981203607.jpg",
+    "name": "都市之声",
+    "url": "https://satellitepull.cnr.cn/live/wxdszs/playlist.m3u8"
+  },
+  {
+    "logo": "",
+    "name": "CNR-14 香港之聲",
+    "url": "https://satellitepull.cnr.cn/live/wxxgzs/playlist.m3u8"
+  },
+  {
+    "logo": "http://www.cnr.cn/2010zhuanti/bsfb/logo/201004/W020100428478903796225.jpg",
+    "name": "中华之声",
+    "url": "https://satellitepull.cnr.cn/live/wxzhzs/playlist.m3u8"
+  },
+  {
+    "logo": "http://www.cnr.cn/2010zhuanti/bsfb/logo/201004/W020100427772072565417.jpg",
+    "name": "神州之声",
+    "url": "https://satellitepull.cnr.cn/live/wxszzs/playlist.m3u8"
+  },
+  {
+    "logo": "http://www.cnr.cn/2010zhuanti/bsfb/logo/201004/W020100427769341381727.jpg",
+    "name": "文艺之声",
+    "url": "https://satellitepull.cnr.cn/live/wxwyzs/playlist.m3u8"
+  },
+  {
+    "logo": "",
+    "name": "乡村之声",
+    "url": "https://satellitepull.cnr.cn/live/wxxczs/playlist.m3u8"
+  },
+  {
+    "logo": "http://www.cnr.cn/2010zhuanti/bsfb/logo/201004/W020100427770186129775.jpg",
+    "name": "老年之声",
+    "url": "https://satellitepull.cnr.cn/live/wxlnzs/playlist.m3u8"
+  },
+  {
+    "logo": "http://www.cnr.cn/2010zhuanti/bsfb/logo/201004/W020100427774014170120.jpg",
+    "name": "民族之声",
+    "url": "https://satellitepull.cnr.cn/live/wxmzzs/playlist.m3u8"
+  },
+  {
+    "logo": "https://upload.wikimedia.org/wikipedia/zh/2/26/%E6%B5%B7%E5%B3%A1%E4%B9%8B%E5%A3%B0%E5%B9%BF%E6%92%AD%E7%94%B5%E5%8F%B0%EF%BC%88Voice_of_the_Strait%EF%BC%89.png",
+    "name": "海峡之声",
+    "url": "https://satellitepull.cnr.cn/live/wxhxzs/playlist.m3u8"
+  },
+  {
+    "logo": "",
+    "name": "阅读之声",
+    "url": "https://satellitepull.cnr.cn/live/wxylgb/playlist.m3u8"
+  },
+  {
+    "logo": "https://upload.wikimedia.org/wikipedia/zh/8/86/CMG_CRI_News_Radio.png",
+    "name": "CRI环球资讯广播 FM90.5",
+    "url": "https://sk.cri.cn/905.m3u8"
+  },
+  {
+    "logo": "https://chinese.cri.cn/etc/static/img/logo-radio-nhzs.png",
+    "name": "CRI南海之声",
+    "url": "https://sk.cri.cn/nhzs.m3u8"
+  },
+  {
+    "logo": "",
+    "name": "CRI中文环球广播",
+    "url": "https://sk.cri.cn/hyhq.m3u8"
+  },
+  {
+    "logo": "",
+    "name": "CRI海峡飞虹",
+    "url": "https://sk.cri.cn/hxfh.m3u8"
+  }
+]

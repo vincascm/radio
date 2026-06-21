@@ -3,8 +3,8 @@ var CACHE = 'radio-cache-v1';
 var PRECACHE_URLS = [
   '/',
   '/index.html',
-  '/radio.m3u8',
-  '/icon.svg'
+  '/radio.json',
+  '/static/img/icon.svg'
 ];
 
 self.addEventListener('install', function(event) {

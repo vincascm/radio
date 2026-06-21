@@ -167,7 +167,7 @@ function radio() {
         title: station.name,
         artist: '晶体管收音机',
         artwork: [
-          { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml' }
+          { src: '/static/img/icon.svg', sizes: 'any', type: 'image/svg+xml' }
         ]
       });
     },
@@ -234,42 +234,20 @@ function radio() {
     },
 
     fetchRadioStations() {
-      fetch('radio.m3u8')
+      fetch('radio.json')
         .then(function(res) {
-          if (!res.ok) throw new Error('无法加载 radio.m3u8');
-          return res.text();
+          if (!res.ok) throw new Error('无法加载 radio.json');
+          return res.json();
         })
-        .then((text) => {
-          this.sources.radio.stations = this.parseM3U(text);
+        .then((data) => {
+          this.sources.radio.stations = data.map(function(item) {
+            return { name: item.name, url: item.url, image: item.logo || '' };
+          });
           if (this.currentSource === 'radio') this.showStations();
         })
         .catch((err) => {
           if (this.currentSource === 'radio') this.errorMsg = '加载频道列表失败: ' + err.message;
         });
-    },
-
-    parseM3U(content) {
-      var lines = content.split('\n');
-      var result = [];
-      var current = null;
-      for (var i = 0; i < lines.length; i++) {
-        var line = lines[i].trim();
-        if (!line) continue;
-        if (line.startsWith('#EXTM3U')) continue;
-        if (line.startsWith('#EXTINF:')) {
-          var match = line.match(/#EXTINF:\d+,(.+)/);
-          if (match) {
-            current = { name: match[1].trim(), url: '' };
-          }
-        } else if (!line.startsWith('#') && current) {
-          current.url = line;
-          if (current.name && current.url) {
-            result.push(current);
-            current = null;
-          }
-        }
-      }
-      return result;
     },
 
     switchSource() {

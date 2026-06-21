@@ -8,8 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="收音机">
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icon.svg">
+<link rel="icon" href="static/img/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="static/img/icon.svg">
 <title>晶体管收音机</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.20/hls.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
@@ -32,7 +32,7 @@
       <div class="display">
         <div class="source-label" x-text="sourceLabel">云听</div>
         <div class="station-info">
-            <img class="station-image" x-bind:src="currentStation?.image || '/station-fallback.svg'" alt="">
+            <img class="station-image" x-bind:src="currentStation?.image || '/static/img/station-fallback.svg'" alt="">
           <div class="station-meta">
             <div class="station-name" x-text="currentStation?.name || '--'">--</div>
             <div class="station-freq" x-text="currentStation?.freq || ''"></div>
